@@ -274,6 +274,23 @@ int deleteFirst(headNode* h) {
  */
 int invertList(headNode* h) {
 
+	if(h->first == NULL) {  //리스트가 비어있으면 오류 메시지 출력
+	printf("nothing to invert");
+	return 0;
+	}
+
+	listNode* now = h->first;  //현재 노드
+	listNode* prev = h->first;  //이전 노드
+	listNode* temp = h->first;  //임시 노드
+
+	while(now != NULL) {
+		prev = temp;  //이전 노드를 임시 노드로
+		temp = now;  //임시 노드를 현재 노드로
+		now = now->rlink;  //다음 노드로 이동
+		temp->rlink = prev;  //임시 노드(현재 노드였던 것)의 rlink를 이전 노드로
+		temp->llink = now;  //임시 노드의 llink를 현재 노드로
+	}
+
 	return 0;
 }
 
@@ -281,6 +298,35 @@ int invertList(headNode* h) {
 
 /* 리스트를 검색하여, 입력받은 key보다 큰값이 나오는 노드 바로 앞에 삽입 */
 int insertNode(headNode* h, int key) {
+
+	listNode* add = (listNode*)malloc(sizeof(listNode));  //추가될 노드 add 선언 및 메모리 할당
+	add->key = key;
+	add->llink = NULL;
+	add->rlink = NULL;
+
+	if(h->first == NULL) {  //리스트가 비어있으면 첫번째 노드로 설정
+		h->first = add;
+		return 0;
+	}
+
+	listNode* now = h->first;  //처음부터 마지막까지 타고갈 현재의 노드 now
+	listNode* next = h->first;  //now 노드의 다음 노드가 될 노드 next
+
+	while(now != NULL) {  //now가 마지막 노드가 될때까지
+		if(add->key >= now->key) {  //만약 add의 key가 크거나 같다면 (now의 다음 노드가 되야한다면)
+			next = now->rlink;  //현재 노드의 rlink가 다음 노드를 가리키게 설정
+			now->rlink = add;  //현재 노드의 rlink를 추가할 노드로 설정
+			add->llink = now;  //추가된 노드의 llink를 현재 노드로 설정
+			add->rlink = next;  //추가된 노드의 rlink를 다음 노드로 설정
+
+			return 0;
+		}
+
+		now = now->rlink;  //add의 key가 작으면 다음 노드로 이동
+	}
+
+	add->llink = now;  //now가 마지막 노드까지 갔으면 add를 now 뒤에 추가
+	now->rlink = add;
 
 	return 0;
 }
@@ -291,5 +337,31 @@ int insertNode(headNode* h, int key) {
  */
 int deleteNode(headNode* h, int key) {
 
+	if(h->first == NULL) {  //리스트가 비어있으면 오류 메시지 출력
+	printf("nothing to delete");
+	return 1;
+	}
+
+	listNode* now = h->first;  //리스트의 처음부터 끝까지 갈 now 노드
+	while(now != NULL) {  //now가 마지막 노드가 될때까지
+		if(now->key == key) {  //지우려는 key와 같으면
+			if(now->llink == NULL) {  //현재 노드가 첫번째 노드라면
+				deleteFirst(h);
+			}
+			else if(now->rlink == NULL) {  //현재 노드가 마지막 노드라면
+				deleteLast(h);
+			}
+			else{
+				now->llink->rlink = now->rlink;  //현재 노드의 이전 노드의 rlink를 현재 노드의 다음 노드로
+				now->rlink->llink = now->llink;  //현재 노드의 다음 노드의 llink를 현재 노드의 이전 노드로
+				free(now);
+				}  //현재 노드 메모리 반환
+			return 1;
+		}
+
+		now = now->rlink;
+	}
+
+	printf("no node that have typed key");  //key 값을 가진 노드가 없으면 오류 메시지
 	return 1;
 }
